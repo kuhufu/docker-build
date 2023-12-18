@@ -6,28 +6,32 @@ This repository contains an example Go application, used in the
 This goal of this guide is to illustrate Docker Build features and best
 practices.
 
-## In this repository
+# 导出构建后的文件
+```shell
+docker build 
+--output=bin  \ #指定导出目录
+--target=binaries \ #指定构建阶段
+.
+```
 
-You'll find the Go source code for the application in the `cmd` directory. For
-the purpose of the Build guide, there's no need to understand or interact with
-the source code in any way. The guide only refers to Dockerfile changes.
+## 多平台构建
+```shell
+docker buildx create --driver=docker-container --name=container
 
-The `Dockerfile` in the root directory of this project is the starting point for
-this guide. It contains the unmodified version.
+docker buildx build \
+--target=binaries \ #指定构建阶段
+--output=bin \ #指定导出目录
+--builder=container \
+--platform=darwin/arm64,windows/amd64,linux/amd64 \
+.
+```
 
-The `chapters` directory contains the finished Dockerfile examples for each
-section of the guide. The sections are enumerated 1-8, and the Dockerfiles in
-this directory are named after the section that they correspond to.
+## Dockerfile中从变量
 
-## Tasks
+***`TARGETOS` 和 `TARGETARCH`***
 
-This repository implements [Task](https://taskfile.dev/) to make it easier to
-switch between stages, or reset Dockerfile.
+`--platform=linux/amd64` 会被解析为：`TARGETOS=linux TARGETARCH=amd64`
 
-To reset your Dockerfile to a specific stage, install Task and run
-`task goto:<stage>`. This overwrites the contents of the Dockerfile to the
-**finished version** of the selected stage.
+***`BUILDPLATFORM`***
 
-For example, running `task goto:1` resets the Dockerfile the starting point of
-the guide. Running `task goto:4` resets the Dockerfile to reflect the **finished
-version** of the 4th section of the guide.
+值为当前构建镜像的平台，例如我当前在mac m1平台上编译镜像，则 `BUILDPLATFORM=darwin/arm64`
