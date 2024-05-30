@@ -24,5 +24,6 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha
       - name: Echo tags
-        run: echo ${{ steps.meta.outputs.tags }}
+        run: |
+          echo ${{ steps.meta.outputs.tags }}
 
